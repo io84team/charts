@@ -28,4 +28,4 @@ maintainers:
 name: laravel-app
 sources:
   - https://github.com/io84team/laravel-app-chart
-version: 0.1.0
+version: 0.1.1

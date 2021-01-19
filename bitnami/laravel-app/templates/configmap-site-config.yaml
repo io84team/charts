@@ -1,0 +1,8 @@
+{{- if .Values.customNginxConf }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}-site-config
+data:
+{{- include "common.tplvalues.render" (dict "value" .Values.customNginxConf "context" $) | nindent 2 }}
+{{- end }}
