@@ -1,0 +1,102 @@
+apiVersion: v1
+entries:
+  common:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.3.5
+    created: "2021-01-18T01:24:56.118579+08:00"
+    description: A Library Helm Chart for grouping common logic between bitnami charts.
+      This chart is not deployable by itself.
+    digest: 6b39247e3e99d0f65045bc0eb825407dbeeea6be75383e1594180170f4107c36
+    home: https://github.com/bitnami/charts/tree/master/bitnami/common
+    icon: https://bitnami.com/downloads/logos/bitnami-mark.png
+    keywords:
+    - common
+    - helper
+    - template
+    - function
+    - bitnami
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    name: common
+    sources:
+    - https://github.com/bitnami/charts
+    - http://www.bitnami.com/
+    type: library
+    urls:
+    - http://localhost:8081/bitnami/common-1.3.5.tgz
+    version: 1.3.5
+  laravel-app:
+  - annotations:
+      category: PHP
+    apiVersion: v2
+    appVersion: 8.5.8
+    created: "2021-01-18T01:24:56.123993+08:00"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.x.x
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Web publishing platform for building a laravel website.
+    digest: bc198f49a12bacedc3a4d4b5b705d0292496556e5142d28e3877b174e22eb468
+    home: https://github.com/io84team/laravel-app-chart
+    icon: https://bitnami.com/io84team/laravel-app-chart/laravel-220x234.png
+    keywords:
+    - application
+    - framework
+    - http
+    - php
+    - web
+    maintainers:
+    - email: support@aben.io
+      name: Aben
+    name: laravel-app
+    sources:
+    - https://github.com/io84team/laravel-app-chart
+    urls:
+    - http://localhost:8081/bitnami/laravel-app-0.1.1.tgz
+    version: 0.1.1
+  mariadb:
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: 10.5.8
+    created: "2021-01-18T01:24:56.128506+08:00"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Fast, reliable, scalable, and easy to use open-source relational
+      database system. MariaDB Server is intended for mission-critical, heavy-load
+      production systems as well as for embedding into mass-deployed software. Highly
+      available MariaDB cluster.
+    digest: 0bc4e4dc5bdb93574cb4b9c6ca2615d4ff6086c2c585d772046c31adedaa1fd8
+    home: https://github.com/bitnami/charts/tree/master/bitnami/mariadb
+    icon: https://bitnami.com/assets/stacks/mariadb/img/mariadb-stack-220x234.png
+    keywords:
+    - mariadb
+    - mysql
+    - database
+    - sql
+    - prometheus
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    name: mariadb
+    sources:
+    - https://github.com/bitnami/bitnami-docker-mariadb
+    - https://github.com/prometheus/mysqld_exporter
+    - https://mariadb.org
+    urls:
+    - http://localhost:8081/bitnami/mariadb-9.2.2.tgz
+    version: 9.2.2
+generated: "2021-01-18T01:24:56.116407+08:00"
