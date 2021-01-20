@@ -5,7 +5,7 @@ entries:
       category: PHP
     apiVersion: v2
     appVersion: 8.5.9
-    created: "2021-01-21T01:18:51.816893+08:00"
+    created: "2021-01-20T17:18:51.728104363Z"
     dependencies:
     - condition: mariadb.enabled
       name: mariadb
@@ -33,13 +33,13 @@ entries:
     sources:
     - https://github.com/io84team/laravel-app-chart
     urls:
-    - http://localhost:8081/laravel-app-0.1.2.tgz
+    - charts/laravel-app-0.1.2.tgz
     version: 0.1.2
   - annotations:
       category: PHP
     apiVersion: v2
     appVersion: 8.5.8
-    created: "2021-01-21T01:18:51.810916+08:00"
+    created: "2021-01-19T03:51:17.030252488Z"
     dependencies:
     - condition: mariadb.enabled
       name: mariadb
@@ -67,6 +67,7 @@ entries:
     sources:
     - https://github.com/io84team/laravel-app-chart
     urls:
-    - http://localhost:8081/laravel-app-0.1.1.tgz
+    - charts/laravel-app-0.1.1.tgz
     version: 0.1.1
-generated: "2021-01-21T01:18:51.804897+08:00"
+generated: "2021-01-20T17:22:52Z"
+serverInfo: {}
