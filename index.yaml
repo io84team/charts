@@ -5,7 +5,7 @@ entries:
       category: PHP
     apiVersion: v2
     appVersion: 8.5.9
-    created: "2021-01-21T01:18:51.816893+08:00"
+    created: "2021-01-21T01:43:36.95117+08:00"
     dependencies:
     - condition: mariadb.enabled
       name: mariadb
@@ -17,7 +17,7 @@ entries:
       - bitnami-common
       version: 1.x.x
     description: Web publishing platform for building a laravel website.
-    digest: aeb5935800dcaf0ac1a0529ac678dd6f284e19a0850a2c0abd60b2825c1ad946
+    digest: 1547af45ecb483d0585c7383c5ca3bd061d8fda84b3f2d8ab8217c2eb889e05b
     home: https://github.com/io84team/laravel-app-chart
     icon: https://bitnami.com/io84team/laravel-app-chart/laravel-220x234.png
     keywords:
@@ -39,7 +39,7 @@ entries:
       category: PHP
     apiVersion: v2
     appVersion: 8.5.8
-    created: "2021-01-21T01:18:51.810916+08:00"
+    created: "2021-01-21T01:43:36.944054+08:00"
     dependencies:
     - condition: mariadb.enabled
       name: mariadb
@@ -69,4 +69,4 @@ entries:
     urls:
     - http://localhost:8081/laravel-app-0.1.1.tgz
     version: 0.1.1
-generated: "2021-01-21T01:18:51.804897+08:00"
+generated: "2021-01-21T01:43:36.936533+08:00"
