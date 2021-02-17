@@ -1,11 +1,44 @@
 apiVersion: v1
 entries:
+  keycloak:
+  - annotations:
+      category: DeveloperTools
+    apiVersion: v2
+    appVersion: 11.0.3
+    created: "2021-02-04T17:24:32.65687783Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.x.x
+    description: Keycloak is a high performance Java-based identity and access management solution. It lets developers add an authentication layer to their applications with minimum effort.
+    digest: 05c24e0416a8305dea6cf8b54eec7b4d458efb5a9b670503bf213a8f11bd08dc
+    home: https://www.keycloak.org
+    icon: https://bitnami.com/assets/stacks/keycloak/img/keycloak-stack-110x117.png
+    keywords:
+    - keycloak
+    - access-management
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    name: keycloak
+    sources:
+    - https://github.com/bitnami/bitnami-docker-keycloak
+    - https://github.com/keycloak/keycloak
+    urls:
+    - charts/keycloak-1.2.0.tgz
+    version: 1.2.0
   laravel-app:
   - annotations:
       category: PHP
     apiVersion: v2
     appVersion: 8.5.9
-    created: "2021-01-20T17:18:51.728104363Z"
+    created: "2021-01-20T17:43:36.789978371Z"
     dependencies:
     - condition: mariadb.enabled
       name: mariadb
@@ -17,7 +50,7 @@ entries:
       - bitnami-common
       version: 1.x.x
     description: Web publishing platform for building a laravel website.
-    digest: aeb5935800dcaf0ac1a0529ac678dd6f284e19a0850a2c0abd60b2825c1ad946
+    digest: 1547af45ecb483d0585c7383c5ca3bd061d8fda84b3f2d8ab8217c2eb889e05b
     home: https://github.com/io84team/laravel-app-chart
     icon: https://bitnami.com/io84team/laravel-app-chart/laravel-220x234.png
     keywords:
@@ -69,5 +102,5 @@ entries:
     urls:
     - charts/laravel-app-0.1.1.tgz
     version: 0.1.1
-generated: "2021-01-20T17:22:52Z"
+generated: "2021-02-04T17:26:02Z"
 serverInfo: {}
