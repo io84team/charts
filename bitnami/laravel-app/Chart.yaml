@@ -1,31 +1,31 @@
 annotations:
-  category: PHP
+    category: PHP
 apiVersion: v2
-appVersion: 8.5.8
+appVersion: 8.5.9
 dependencies:
-  - condition: mariadb.enabled
-    name: mariadb
-    repository: https://charts.bitnami.com/bitnami
-    version: 9.x.x
-  - name: common
-    repository: https://charts.bitnami.com/bitnami
-    tags:
-      - bitnami-common
-    version: 1.x.x
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.x.x
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+          - bitnami-common
+      version: 1.x.x
 description: Web publishing platform for building a laravel website.
 engine: gotpl
 home: https://github.com/io84team/laravel-app-chart
 icon: https://bitnami.com/io84team/laravel-app-chart/laravel-220x234.png
 keywords:
-  - application
-  - framework
-  - http
-  - php
-  - web
+    - application
+    - framework
+    - http
+    - php
+    - web
 maintainers:
-  - email: support@aben.io
-    name: Aben
+    - email: support@aben.io
+      name: Aben
 name: laravel-app
 sources:
-  - https://github.com/io84team/laravel-app-chart
-version: 0.1.1
+    - https://github.com/io84team/laravel-app-chart
+version: 0.1.3

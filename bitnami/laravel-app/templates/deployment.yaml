@@ -61,14 +61,10 @@ spec:
               mountPath: /var/www/app/storage/oauth-public.key
               subPath: oauth-public.key
             {{- end }}
-          env: &env
-            - name: APP_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "common.names.fullname" . }}
-                  key: appKey
           envFrom: &envFrom
             - configMapRef:
+                name: {{ include "common.names.fullname" . }}-env
+            - secretRef:
                 name: {{ include "common.names.fullname" . }}-env
         - name: nginx
           {{- if .Values.containerSecurityContext.enabled }}
@@ -82,11 +78,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/health/alive
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health/alive
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -108,7 +104,6 @@ spec:
               mountPath: /var/www/app/storage/oauth-public.key
               subPath: oauth-public.key
             {{- end }}
-          env: *env
           envFrom: *envFrom
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -126,7 +121,7 @@ spec:
         {{- if and .Values.oauthPrivateKey .Values.oauthPublicKey }}
         - name: oauth-keys
           secret:
-            secretName: {{ template "common.names.fullname" . }}
+            secretName: {{ template "common.names.fullname" . }}-oauth
         {{- end }}
         {{- if .Values.customNginxConf }}
         - name: {{ template "common.names.fullname" . }}-site-config
