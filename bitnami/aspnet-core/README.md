@@ -20,7 +20,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 
 ## Installing the Chart
 
@@ -89,6 +89,7 @@ The following tables lists the configurable parameters of the ASP.NET Core chart
 | Parameter                             | Description                                                                                | Default                                                 |
 |---------------------------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------|
 | `replicaCount`                        | Number of ASP.NET Core replicas to deploy                                                  | `1`                                                     |
+| `hostAliases`                    | Add deployment host aliases                                                               | `[]`                                          |
 | `strategyType`                        | Deployment Strategy Type                                                                   | `RollingUpdate`                                         |
 | `podAffinityPreset`                   | Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`        | `""`                                                    |
 | `podAntiAffinityPreset`               | Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`   | `soft`                                                  |
@@ -133,7 +134,8 @@ The following tables lists the configurable parameters of the ASP.NET Core chart
 | `appFromExternalRepo.clone.image.pullPolicy`      | GIT image pull policy                                                          | `IfNotPresent`                                                     |
 | `appFromExternalRepo.clone.image.pullSecrets`     | Specify docker-registry secret names as an array                               | `[]` (does not add image pull secrets to deployed pods)            |
 | `appFromExternalRepo.clone.repository`            | GIT Repository to clone                                                        | `https://github.com/dotnet/AspNetCore.Docs.git`                    |
-| `appFromExternalRepo.clone.revision`              | GIT revision to checkout                                                       | `master`                                                           |
+| `appFromExternalRepo.clone.revision`              | GIT revision to checkout                                                       | `main`                                                             |
+| `appFromExternalRepo.clone.extraVolumeMounts`     | Add extra volume mounts for the GIT container                                  | `[]`                                                               |
 | `appFromExternalRepo.publish.image.registry`      | .NET SDK image registry                                                        | `docker.io`                                                        |
 | `appFromExternalRepo.publish.image.repository`    | .NET SDK Image name                                                            | `bitnami/git`                                                      |
 | `appFromExternalRepo.publish.image.tag`           | .NET SDK Image tag                                                             | `{TAG_NAME}`                                                       |
@@ -217,24 +219,6 @@ It is strongly recommended to use immutable tags in a production environment. Th
 
 Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
 
-### Production configuration
-
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
-
-- Increase number of replicas to 3:
-
-```diff
-- replicaCount: 1
-+ replicaCount: 3
-```
-
-- Enable Pod Disruption Budget:
-
-```diff
-- pdb.enabled: false
-+ pdb.enabled: true
-```
-
 ### Deploying your custom ASP.NET Core application
 
 The ASP.NET Core chart allows you to deploy a custom application using one of the following methods:
@@ -276,7 +260,7 @@ For example, you can deploy a sample [Kestrel server](https://docs.microsoft.com
 ```console
 appFromExternalRepo.enabled=true
 appFromExternalRepo.clone.repository=https://github.com/dotnet/AspNetCore.Docs.git
-appFromExternalRepo.clone.branch=master
+appFromExternalRepo.clone.revision=main
 appFromExternalRepo.publish.aspnetcore/fundamentals/servers/kestrel/samples/3.x/KestrelSample
 appFromExternalRepo.startCommand[0]=dotnet
 appFromExternalRepo.startCommand[1]=KestrelSample.dll

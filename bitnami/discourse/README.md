@@ -20,7 +20,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 - PV provisioner support in the underlying infrastructure
 - ReadWriteMany volumes for deployment scaling
 
@@ -76,11 +76,13 @@ The following table lists the configurable parameters of the Discourse chart and
 | `serviceAccount.annotations` | Annotations to add to the service account                                                 | `{}`                                                    |
 | `serviceAccount.name`        | Name to be used for the service account                                                   | `""`                                                    |
 | `podSecurityContext`         | Pod security context specification                                                        | `{}`                                                    |
+| `hostAliases`                | Add deployment host aliases                                                               | `[]`                                                    |
 | `persistence.enabled`        | Whether to enable persistence based on Persistent Volume Claims                           | `true`                                                  |
 | `persistence.storageClass`   | PVC Storage Class                                                                         | `nil`                                                   |
 | `persistence.existingClaim`  | Name of an existing PVC to reuse                                                          | `nil`                                                   |
 | `persistence.accessMode`     | PVC Access Mode (RWO, ROX, RWX)                                                           | `ReadWriteOnce`                                         |
 | `persistence.size`           | Size of the PVC to request                                                                | `10Gi`                                                  |
+| `persistence.selector`       | Selector to match an existing Persistent Volume (this value is evaluated as a template)   | `{}`                                                    |
 | `updateStrategy`             | Update strategy of deployment                                                             | `{type: "RollingUpdate"}`                               |
 | `podAnnotations`             | Additional pod annotations                                                                | `{}`                                                    |
 | `podLabels`                  | Additional pod labels                                                                     | `{}` (evaluated as a template)                          |
@@ -147,8 +149,8 @@ The following table lists the configurable parameters of the Discourse chart and
 | Parameter                                    | Description                                                       | Default                                                 |
 |----------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------|
 | `sidekiq.containerSecurityContext`           | Container security context specification                          | `{}`                                                    |
-| `sidekiq.command`                            | Custom command to override image cmd (evaluated as a template)    | `["/app-entrypoint.sh"]`                                |
-| `sidekiq.args`                               | Custom args for the custom command (evaluated as a template)      | `["nami", "start", "--foreground", "discourse-sidekiq"` |
+| `sidekiq.command`                            | Custom command to override image cmd (evaluated as a template)    | `["/opt/bitnami/scripts/discourse/entrypoint.sh"]`      |
+| `sidekiq.args`                               | Custom args for the custom command (evaluated as a template)      | `["/opt/bitnami/scripts/discourse-sidekiq/run.sh"`      |
 | `sidekiq.resources`                          | Sidekiq container's resource requests and limits                  | `{}`                                                    |
 | `sidekiq.livenessProbe.enabled`              | Enable/disable livenessProbe                                      | `true`                                                  |
 | `sidekiq.livenessProbe.initialDelaySeconds`  | Delay before liveness probe is initiated                          | `500`                                                   |
@@ -168,6 +170,19 @@ The following table lists the configurable parameters of the Discourse chart and
 | `sidekiq.extraEnvVarsCM`                     | Array to add extra configmaps                                     | `[]`                                                    |
 | `sidekiq.extraEnvVarsSecret`                 | Array to add extra environment from a Secret                      | `nil`                                                   |
 | `discourse.extraVolumeMounts`                | Additional volume mounts (used along with `extraVolumes`)         | `[]` (evaluated as a template)                          |
+
+### Volume Permissions parameters
+
+| Parameter                             | Description                                                                                                                                               | Default                                                 |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| `volumePermissions.enabled`           | Enable init container that changes volume permissions in the data directory (for cases where the default k8s `runAsUser` and `fsUser` values do not work) | `false`                                                 |
+| `volumePermissions.image.registry`    | Init container volume-permissions image registry                                                                                                          | `docker.io`                                             |
+| `volumePermissions.image.repository`  | Init container volume-permissions image name                                                                                                              | `bitnami/bitnami-shell`                                 |
+| `volumePermissions.image.tag`         | Init container volume-permissions image tag                                                                                                               | `"10"`                                                  |
+| `volumePermissions.image.pullSecrets` | Specify docker-registry secret names as an array                                                                                                          | `[]` (does not add image pull secrets to deployed pods) |
+| `volumePermissions.image.pullPolicy`  | Init container volume-permissions image pull policy                                                                                                       | `Always`                                                |
+| `volumePermissions.resources.limits`  | The resources limits for the init container                                                                                                               | `{}`                                                    |
+| `volumePermissions.resources.requests`| The requested resourcesc for the init container                                                                                                           | `{}`                                                    |
 
 ### Ingress parameters
 
@@ -204,6 +219,7 @@ The following table lists the configurable parameters of the Discourse chart and
 | `externalDatabase.port`                       | Database port number (when using an external db)                                                                                                 | `5432`                                         |
 | `externalDatabase.user`                       | PostgreSQL username (when using an external db)                                                                                                  | `bn_discourse`                                 |
 | `externalDatabase.password`                   | Password for the above username (when using an external db)                                                                                      | `""`                                           |
+| `externalDatabase.create`                     | Enable PostgreSQL user & database creation (when using an external db)                                                                           | `true`                                         |
 | `externalDatabase.postgresqlPostgresUser`     | PostgreSQL admin user, used during the installation stage (when using an external db)                                                            | `""`                                           |
 | `externalDatabase.postgresqlPostgresPassword` | Password for PostgreSQL admin user (when using an external db)                                                                                   | `""`                                           |
 | `externalDatabase.existingSecret`             | Name of an existing Kubernetes secret. The secret must have the following keys configured: `postgresql-postgres-password`, `postgresql-password` | `nil`                                          |
@@ -214,11 +230,11 @@ The following table lists the configurable parameters of the Discourse chart and
 | Parameter                                 | Description                                                                             | Default          |
 |-------------------------------------------|-----------------------------------------------------------------------------------------|------------------|
 | `redis.enabled`                           | Deploy Redis<sup>TM</sup> container(s)                                                  | `true`           |
-| `redis.usePassword`                       | Use password authentication                                                             | `false`          |
-| `redis.password`                          | Password for Redis<sup>TM</sup> authentication  - ignored if existingSecret is provided | `nil`            |
-| `redis.existingSecret`                    | Name of an existing Kubernetes secret                                                   | `nil`            |
-| `redis.existingSecretPasswordKey`         | Name of the key pointing to the password in your Kubernetes secret                      | `redis-password` |
-| `redis.cluster.enabled`                   | Whether to use cluster replication                                                      | `false`          |
+| `redis.auth.enabled`                      | Use password authentication                                                             | `false`          |
+| `redis.auth.password`                     | Password for Redis<sup>TM</sup> authentication  - ignored if existingSecret is provided | `nil`            |
+| `redis.auth.existingSecret`               | Name of an existing Kubernetes secret                                                   | `nil`            |
+| `redis.auth.existingSecretPasswordKey`    | Name of the key pointing to the password in your Kubernetes secret                      | `redis-password` |
+| `redis.architecture`                      | Redis<sup>TM</sup> architecture. Allowed values: `standalone` or `replication`          | `standalone`     |
 | `redis.master.persistence.enabled`        | Enable database persistence using PVC                                                   | `true`           |
 | `externalRedis.host`                      | Host of the external database                                                           | `""`             |
 | `externalRedis.port`                      | Database port number                                                                    | `6379`           |
@@ -237,6 +253,8 @@ $ helm install my-release \
 ```
 
 The above command sets the Discourse administrator account username and password to `admin` and `password` respectively. Additionally, it sets the Postgresql `bn_discourse` user password to `secretpassword`.
+
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
@@ -291,38 +309,6 @@ Then you can deploy Discourse chart using the proper parameters:
 persistence.storageClass=nfs
 postgresql.persistence.storageClass=nfs
 ```
-
-### Production configuration
-
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
-
-- Enable client source IP preservation:
-
-```diff
-- service.externalTrafficPolicy: Cluster
-+ service.externalTrafficPolicy: Local
-```
-
-- Make Redis<sup>TM</sup> use password for auth:
-
-```diff
-- redis.usePassword: false
-+ redis.usePassword: true
-```
-
-- PVC Access Mode:
-
-```diff
-- persistence.accessMode: ReadWriteOnce
-+ ## To use the portal and to ensure you can scale Discourse you need to provide a
-+ ## ReadWriteMany PVC, if you dont have a provisioner for this type of storage
-+ ## We recommend that you install the nfs provisioner and map it to a RWO volume
-+ ## helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.size=10Gi
-+ ##
-+ persistence.accessMode: ReadWriteMany
-```
-
-Note that [values-production.yaml](values-production.yaml) specifies ReadWriteMany PVCs are specified. This is intended to ease the process of replication (see [Setting up replication](#setting-up-replication)).
 
 ### Sidecars
 
@@ -465,6 +451,27 @@ imagePullSecrets:
 Find more information about how to deal with common errors related to Bitnami’s Helm charts in [this troubleshooting guide](https://docs.bitnami.com/general/how-to/troubleshoot-helm-chart-issues).
 
 ## Upgrading
+
+### To 4.0.0
+
+The [Bitnami Discourse](https://github.com/bitnami/bitnami-docker-discourse) image was refactored and now the source code is published in GitHub in the [`rootfs`](https://github.com/bitnami/bitnami-docker-discourse/tree/master/2/debian-10/rootfs) folder of the container image repository.
+
+Upgrades from previous versions require to specify `--set volumePermissions.enabled=true` in order for all features to work properly:
+
+```console
+$ helm upgrade discourse bitnami/discourse \
+    --set discourse.host=$DISCOURSE_HOST \
+    --set discourse.password=$DISCOURSE_PASSWORD \
+    --set postgresql.postgresqlPassword=$POSTGRESQL_PASSWORD \
+    --set postgresql.persistence.existingClaim=$POSTGRESQL_PVC \
+    --set volumePermissions.enabled=true
+```
+
+Full compatibility is not guaranteed due to the amount of involved changes, however no breaking changes are expected aside from the ones mentioned above.
+
+### To 3.0.0
+
+This major updates the Redis<sup>TM</sup> subchart to it newest major, 14.0.0, which contains breaking changes. For more information on this subchart's major and the steps needed to migrate your data from your previous release, please refer to [Redis<sup>TM</sup> upgrade notes.](https://github.com/bitnami/charts/tree/master/bitnami/redis#to-1400).
 
 ### To 2.0.0
 

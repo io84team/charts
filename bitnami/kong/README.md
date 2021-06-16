@@ -18,7 +18,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 - PV provisioner support in the underlying infrastructure
 
 ## Installing the Chart
@@ -74,12 +74,14 @@ The following tables list the configurable parameters of the kong chart and thei
 | `image.tag`                              | kong image tag                                                                                                                                | `{TAG_NAME}`                                            |
 | `image.pullPolicy`                       | kong image pull policy                                                                                                                        | `IfNotPresent`                                          |
 | `image.pullSecrets`                      | Specify docker-registry secret names as an array                                                                                              | `[]` (does not add image pull secrets to deployed pods) |
+| `useDaemonset`                           | Use a daemonset instead of a deployment. `replicaCount` will not take effect.                                                                 | `false`                                                 |
 | `replicaCount`                           | Number of replicas of the kong Pod                                                                                                            | `2`                                                     |
 | `updateStrategy`                         | Update strategy for deployment                                                                                                                | `{type: "RollingUpdate"}`                               |
 | `schedulerName`                          | Alternative scheduler                                                                                                                         | `nil`                                                   |
 | `database`                               | Select which database backend Kong will use. Can be 'postgresql' or 'cassandra'                                                               | `postgresql`                                            |
 | `containerSecurityContext`               | Container security podSecurityContext                                                                                                         | `{ runAsUser: 1001, runAsNonRoot: true}`                |
 | `podSecurityContext`                     | Pod security context                                                                                                                          | `{}`                                                    |
+| `hostAliases`                            | Add deployment host aliases                                                                                                                   | `[]`                                                    |
 | `nodeSelector`                           | Node labels for pod assignment                                                                                                                | `{}`                                                    |
 | `tolerations`                            | Tolerations for pod assignment                                                                                                                | `[]`                                                    |
 | `affinity`                               | Affinity for pod assignment                                                                                                                   | `{}`                                                    |
@@ -114,6 +116,7 @@ The following tables list the configurable parameters of the kong chart and thei
 | `ingressController.resources`            | Configure resource requests and limits (kong ingress controller container)                                                                    | `nil`                                                   |
 | `ingressController.extraVolumeMounts`    | Array of extra volume mounts to be added to the Kong Ingress Controller container (evaluated as template). Normally used with `extraVolumes`. | `nil`                                                   |
 | `migration.resources`                    | Configure resource requests and limits  (migration container)                                                                                 | `nil`                                                   |
+| `migration.hostAliases`                  | Add deployment host aliases                                                                                                                   | `[]`                                                    |
 | `migration.extraVolumeMounts`            | Array of extra volume mounts to be added to the Kong Container (evaluated as template). Normally used with `extraVolumes`.                    | `nil`                                                   |
 | `extraDeploy`                            | Array of extra objects to deploy with the release (evaluated as a template).                                                                  | `nil`                                                   |
 
@@ -122,6 +125,7 @@ The following tables list the configurable parameters of the kong chart and thei
 | Parameter                        | Description                                                      | Default                        |
 |----------------------------------|------------------------------------------------------------------|--------------------------------|
 | `service.type`                   | Kubernetes Service type                                          | `ClusterIP`                    |
+| `service.externalTrafficPolicy`  | external traffic policy managing client source IP preservation   | `Cluster`                      |
 | `service.exposeAdmin`            | Add the Kong Admin ports to the service                          | `false`                        |
 | `service.proxyHttpPort`          | kong proxy HTTP service port port                                | `80`                           |
 | `service.proxyHttpsPort`         | kong proxy HTTPS service port port                               | `443`                          |
@@ -132,6 +136,7 @@ The following tables list the configurable parameters of the kong chart and thei
 | `service.adminHttpNodePort`      | Port to bind to for NodePort service type (admin HTTP)           | `nil`                          |
 | `service.aminHttpsNodePort`      | Port to bind to for NodePort service type (proxy HTTP)           | `nil`                          |
 | `service.annotations`            | Annotations for kong service                                     | `{}`                           |
+| `service.clusterIP`              | Cluster internal IP of the service                               | `nil`                          |
 | `service.loadBalancerIP`         | loadBalancerIP if kong service type is `LoadBalancer`            | `nil`                          |
 | `ingress.enabled`                | Enable ingress controller resource                               | `false`                        |
 | `ingress.certManager`            | Add annotations for cert-manager                                 | `false`                        |
@@ -192,7 +197,6 @@ The following tables list the configurable parameters of the kong chart and thei
 | `ingressController.extraEnvVarsSecret`          | Secret containing extra env vars to configure Kong Ingress Controller (in case of sensitive data)                   | `nil`                                                   |
 | `ingressController.rbac.create`                 | Create the necessary Service Accounts, Roles and Rolebindings for the Ingress Controller to work                    | `true`                                                  |
 | `ingressController.rbac.existingServiceAccount` | Use an existing service account for all the RBAC operations                                                         | `nil`                                                   |
-| `ingressController.installCRDs`                 | Install CustomResourceDefinitions (use `--skip-crds` on Helm 3)                                                     | `true`                                                  |
 | `ingressController.customResourceDeletePolicy`  | Add custom CRD resource delete policy (for Helm 2 support)                                                          | `nil`                                                   |
 | `ingressController.rbac.existingServiceAccount` | Use an existing service account for all the RBAC operations                                                         | `nil`                                                   |
 | `ingressController.ingressClass`                | Name of the class to register Kong Ingress Controller (useful when having other Ingress Controllers in the cluster) | `nil`                                                   |
@@ -267,38 +271,6 @@ It is strongly recommended to use immutable tags in a production environment. Th
 
 Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
 
-### Production configuration
-
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
-
-- Enable exposing Prometheus metrics:
-
-```diff
-- metrics.enabled: false
-+ metrics.enabled: true
-```
-
-- Enable Pod Disruption Budget:
-
-```diff
-- pdb.enabled: false
-+ pdb.enabled: true
-```
-
-- Increase number of replicas to 4:
-
-```diff
-- replicaCount: 2
-+ replicaCount: 4
-```
-
-- Enable exposing Prometheus metrics:
-
-```diff
-- metrics.enabled: false
-+ metrics.enabled: true
-```
-
 ### Database backend
 
 The Bitnami Kong chart allows setting two database backends: PostgreSQL or Cassandra. For each option, there are two extra possibilities: deploy a sub-chart with the database installation or use an existing one. The list below details the different options (replace the placeholders specified between _UNDERSCORES_):
@@ -340,6 +312,21 @@ The Bitnami Kong chart allows setting two database backends: PostgreSQL or Cassa
     ...
     --set cassandra.external.user=_USER_OF_YOUR_CASSANDRA_INSTALLATION_ \
     --set cassandra.external.password=_PASSWORD_OF_YOUR_CASSANDRA_INSTALLATION_
+```
+
+### DB-less
+
+Kong 1.1 added the capability to run Kong without a database, using only in-memory storage for entities: we call this DB-less mode. When running Kong DB-less, the configuration of entities is done in a second configuration file, in YAML or JSON, using declarative configuration (ref. [Link](https://docs.konghq.com/gateway-oss/1.1.x/db-less-and-declarative-config/)).
+As is said in step 4 of [kong official docker installation](https://docs.konghq.com/install/docker#db-less-mode), just add the env variable "KONG_DATABASE=off".
+
+#### How to enable it
+
+1. Set `database` value with any value other than "postgresql" or "cassandra". For example `database: "off"`
+2. Use `kong.extraEnvVars` value to set the `KONG_DATABASE` environment variable:
+```yaml
+kong.extraEnvVars:
+- name: KONG_DATABASE
+  value: "off"
 ```
 
 ### Sidecars and Init Containers

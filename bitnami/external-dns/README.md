@@ -18,7 +18,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 
 ## Installing the Chart
 
@@ -46,7 +46,6 @@ The command removes all the Kubernetes components associated with the chart and 
 
 The following table lists the configurable parameters of the external-dns chart and their default values.
 
-
 | Parameter                              | Description                                                                                                                                                                                                     | Default                                                 |
 |----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
 | `global.imageRegistry`                 | Global Docker image registry                                                                                                                                                                                    | `nil`                                                   |
@@ -58,11 +57,13 @@ The following table lists the configurable parameters of the external-dns chart 
 | `image.pullSecrets`                    | Specify docker-registry secret names as an array                                                                                                                                                                | `[]` (does not add image pull secrets to deployed pods) |
 | `nameOverride`                         | String to partially override external-dns.fullname template with a string (will prepend the release name)                                                                                                       | `nil`                                                   |
 | `fullnameOverride`                     | String to fully override external-dns.fullname template with a string                                                                                                                                           | `nil`                                                   |
+| `clusterDomain`                        | Default Kubernetes cluster domain                                                                                                                                                                               | `cluster.local` |
 | `sources`                              | K8s resources type to be observed for new DNS entries by ExternalDNS                                                                                                                                            | `[service, ingress]`                                    |
 | `provider`                             | DNS provider where the DNS records will be created (mandatory) (options: aws, azure, google, ...)                                                                                                               | `aws`                                                   |
 | `namespace`                            | Limit sources of endpoints to a specific namespace (default: all namespaces)                                                                                                                                    | `""`                                                    |
 | `fqdnTemplates`                        | Templated strings that are used to generate DNS names from sources that don't define a hostname themselves                                                                                                      | `[]`                                                    |
 | `combineFQDNAnnotation`                | Combine FQDN template and annotations instead of overwriting                                                                                                                                                    | `false`                                                 |
+| `hostAliases`                          | Add deployment host aliases                                                                                                                                                                                     | `[]`                                                    |
 | `ignoreHostnameAnnotation`             | Ignore hostname annotation when generating DNS names, valid only when fqdn-template is set                                                                                                                      | `false`                                                 |
 | `publishInternalServices`              | Whether to publish DNS records for ClusterIP services or not                                                                                                                                                    | `false`                                                 |
 | `publishHostIP`                        | Allow external-dns to publish host-ip for headless services                                                                                                                                                     | `false`                                                 |
@@ -90,6 +91,7 @@ The following table lists the configurable parameters of the external-dns chart 
 | `azure.aadClientId`                    | When using the Azure provider, set the Azure AAD Client ID                                                                                                                                                      | `""`                                                    |
 | `azure.aadClientSecret`                | When using the Azure provider, set the Azure AAD Client Secret                                                                                                                                                  | `""`                                                    |
 | `azure.useManagedIdentityExtension`    | When using the Azure provider, set if you use Azure MSI                                                                                                                                                         | `""`                                                    |
+| `azure.userAssignedIdentityID`         | When using the Azure provider with Azure MSI, set Client ID of Azure user-assigned managed identity (optional, otherwise system-assigned managed identity is used)                                              | `""`                                                    |
 | `cloudflare.apiToken`                  | When using the Cloudflare provider, `CF_API_TOKEN` to set (optional)                                                                                                                                            | `""`                                                    |
 | `cloudflare.apiKey`                    | When using the Cloudflare provider, `CF_API_KEY` to set (optional)                                                                                                                                              | `""`                                                    |
 | `cloudflare.email`                     | When using the Cloudflare provider, `CF_API_EMAIL` to set (optional). Needed when using CF_API_KEY                                                                                                              | `""`                                                    |
@@ -97,6 +99,7 @@ The following table lists the configurable parameters of the external-dns chart 
 | `cloudflare.secretName`                | When using the Cloudflare provider, it's the name of the secret containing cloudflare_api_token or cloudflare_api_key.                                                                                          | `""`                                                    |
 | `coredns.etcdEndpoints`                | When using the CoreDNS provider, set etcd backend endpoints (comma-separated list)                                                                                                                              | `"http://etcd-extdns:2379"`                             |
 | `coredns.etcdTLS.enabled`              | When using the CoreDNS provider, enable secure communication with etcd                                                                                                                                          | `false`                                                 |
+| `coredns.etcdTLS.autoGenerated`        | Generate automatically self-signed TLS certificates                                                                                                                                                             | `false`                                                 |
 | `coredns.etcdTLS.secretName`           | When using the CoreDNS provider, specify a name of existing Secret with etcd certs and keys                                                                                                                     | `"etcd-client-certs"`                                   |
 | `coredns.etcdTLS.mountPath`            | When using the CoreDNS provider, set destination dir to mount data from `coredns.etcdTLS.secretName` to                                                                                                         | `"/etc/coredns/tls/etcd"`                               |
 | `coredns.etcdTLS.caFilename`           | When using the CoreDNS provider, specify CA PEM file name from the `coredns.etcdTLS.secretName`                                                                                                                 | `"ca.crt"`                                              |
@@ -121,9 +124,10 @@ The following table lists the configurable parameters of the external-dns chart 
 | `hetzner.secretName`                   | When using the Hetzner provider, specify the existing secret which contains your token. Disables the usage of `hetzner.token` (optional)                                                                        | `""`                                                    |
 | `hetzner.secretKey`                    | When using the Hetzner provider with an existing secret, specify the key name (optional)                                                                                                                        | `"hetzner_token"`                                       |
 | `hetzner.token`                        | When using the Hetzner provider, specify your token here. (required when `hetzner.secretName` is not provided. In this case a new secret will be created holding the token.)                                    | `""`                                                    |
-| `ovh.consumerKey`                      | When using the OVH provider, specify the existing consumer key. (required when provider=ovh)                                                                                                                    | `""`                                                    |
-| `ovh.applicationKey`                   | When using the OVH provider with an existing application, specify the application key. (required when provider=ovh)                                                                                             | `""`                                                    |
-| `ovh.applicationSecret`                | When using the OVH provider with an existing application, specify the application secret. (required when provider=ovh)                                                                                          | `""`                                                    |
+| `ovh.consumerKey`                      | When using the OVH provider, specify the existing consumer key. (required when provider=ovh and `ovh.secretName` is not provided.)                                                                              | `""`                                                    |
+| `ovh.applicationKey`                   | When using the OVH provider with an existing application, specify the application key. (required when provider=ovh and `ovh.secretName` is not provided.)                                                       | `""`                                                    |
+| `ovh.applicationSecret`                | When using the OVH provider with an existing application, specify the application secret. (required when provider=ovh and `ovh.secretName` is not provided.)                                                    | `""`                                                    |
+| `ovh.secretName`                       | When using the OVH provider, it's the name of the secret containing `ovh_consumer_key`, `ovh_application_key` and `ovh_application_secret`. Disables usage of other `ovh.*`-keys. (optional)                    | `""`                                                    |
 | `scaleway.scwAccessKey`                | When using the Scaleway provider, specify an existing access key. (required when provider=scaleway)                                                                                                             | `""`                                                    |
 | `scaleway.scwSecretKey`                | When using the Scaleway provider, specify an existing secret key. (required when provider=scaleway)                                                                                                             | `""`                                                    |
 | `scaleway.scwDefaultOrganizationId`    | When using the Scaleway provider, specify the existing organization id. (required when provider=scaleway)                                                                                                       | `""`                                                    |
@@ -138,10 +142,12 @@ The following table lists the configurable parameters of the external-dns chart 
 | `infoblox.wapiConnectionPoolSize`      | When using the Infoblox provider, specify the Infoblox WAPI request connection pool size (optional)                                                                                                             | `""`                                                    |
 | `infoblox.wapiHttpTimeout`             | When using the Infoblox provider, specify the Infoblox WAPI request timeout in seconds (optional)                                                                                                               | `""`                                                    |
 | `linode.apiToken`                      | When using the Linode provider, `LINODE_TOKEN` to set (optional)                                                                                                                                                | `""`                                                    |
+| `ns1.minTTL`                           | When using the ns1 provider, specify minimal TTL, as an integer, for records                                                                                                                                    | `10`                                                    |
 | `rfc2136.host`                         | When using the rfc2136 provider, specify the RFC2136 host (required when provider=rfc2136)                                                                                                                      | `""`                                                    |
 | `rfc2136.port`                         | When using the rfc2136 provider, specify the RFC2136 port (optional)                                                                                                                                            | `53`                                                    |
 | `rfc2136.zone`                         | When using the rfc2136 provider, specify the zone (required when provider=rfc2136)                                                                                                                              | `""`                                                    |
-| `rfc2136.tsigSecret`                   | When using the rfc2136 provider, specify the tsig secret to enable security (optional)                                                                                                                          | `""`                                                    |
+| `rfc2136.secretName`                   | When using the rfc2136 provider, specify the existing secret which contains your tsig secret. Disables the usage of `rfc2136.tsigSecret` (optional)                                                             | `""`                                                    |
+| `rfc2136.tsigSecret`                   | When using the rfc2136 provider, specify the tsig secret to enable security. (do not specify if `rfc2136.secretName` is provided.) (optional)                                                                   | `""`                                                    |
 | `rfc2136.tsigKeyname`                  | When using the rfc2136 provider, specify the tsig keyname to enable security (optional)                                                                                                                         | `"externaldns-key"`                                     |
 | `rfc2136.tsigSecretAlg`                | When using the rfc2136 provider, specify the tsig secret to enable security (optional)                                                                                                                          | `"hmac-sha256"`                                         |
 | `rfc2136.tsigAxfr`                     | When using the rfc2136 provider, enable AFXR to enable security (optional)                                                                                                                                      | `true`                                                  |
@@ -158,19 +164,22 @@ The following table lists the configurable parameters of the external-dns chart 
 | `annotationFilter`                     | Filter sources managed by external-dns via annotation using label selector (optional)                                                                                                                           | `""`                                                    |
 | `domainFilters`                        | Limit possible target zones by domain suffixes (optional)                                                                                                                                                       | `[]`                                                    |
 | `excludeDomains`                       | Exclude subdomains (optional)                                                                                                                                                                                   | `[]`                                                    |
+| `zoneNameFilters`                      | Filter target zones by zone domain (optional)                                                                                                                                                                   | `[]`                                                    |
 | `zoneIdFilters`                        | Limit possible target zones by zone id (optional)                                                                                                                                                               | `[]`                                                    |
 | `crd.create`                           | Install and use the integrated DNSEndpoint CRD                                                                                                                                                                  | `false`                                                 |
 | `crd.apiversion`                       | Sets the API version for the CRD to watch                                                                                                                                                                       | `""`                                                    |
 | `crd.kind`                             | Sets the kind for the CRD to watch                                                                                                                                                                              | `""`                                                    |
 | `dryRun`                               | When enabled, prints DNS record changes rather than actually performing them (optional)                                                                                                                         | `false`                                                 |
-| `logLevel`                             | Verbosity of the logs (options: panic, debug, info, warn, error, fatal)                                                                                                                                         | `info`                                                  |
+| `logLevel`                             | Verbosity of the logs (options: panic, debug, info, warning, error, fatal, trace)                                                                                                                               | `info`                                                  |
 | `logFormat`                            | Which format to output logs in (options: text, json)                                                                                                                                                            | `text`                                                  |
 | `interval`                             | Interval update period to use                                                                                                                                                                                   | `1m`                                                    |
 | `triggerLoopOnEvent`                   | When enabled, triggers run loop on create/update/delete events in addition to regular interval (optional)                                                                                                       | `false`                                                 |
-| `policy`                               | Modify how DNS records are synchronized between sources and providers (options: sync, upsert-only )                                                                                                              | `upsert-only`                                           |
-| `registry`                             | Registry method to use (options: txt, noop)                                                                                                                                                                     | `txt`                                                   |
-| `txtOwnerId`                           | When using the TXT registry, a name that identifies this instance of ExternalDNS (optional)                                                                                                                     | `"default"`                                             |
+| `policy`                               | Modify how DNS records are synchronized between sources and providers (options: sync, upsert-only )                                                                                                             | `upsert-only`                                           |
+| `registry`                             | Registry method to use (options: txt, aws-sd, noop)                                                                                                                                                             | `txt`                                                   |
+| `txtOwnerId`                           | A name that identifies this instance of ExternalDNS. Currently used by registry types: txt & aws-sd (optional)                                                                                                  | `"default"`                                             |
+| `forceTxtOwnerId`                      | (backward compatibility) When using the non-TXT registry, it will pass the value defined by `txtOwnerId` down to the application (optional)                                                                     | `false`                                                 |
 | `txtPrefix`                            | When using the TXT registry, a prefix for ownership records that avoids collision with CNAME entries (optional)                                                                                                 | `""`                                                    |
+| `txtSuffix`                            | When using the TXT registry, a suffix for ownership records that avoids collision with CNAME entries (optional)                                                                                                 | `""`                                                    |
 | `extraArgs`                            | Extra arguments to be passed to external-dns                                                                                                                                                                    | `{}`                                                    |
 | `extraEnv`                             | Extra environment variables to be passed to external-dns                                                                                                                                                        | `[]`                                                    |
 | `replicas`                             | Desired number of ExternalDNS replicas                                                                                                                                                                          | `1`                                                     |
@@ -189,6 +198,7 @@ The following table lists the configurable parameters of the external-dns chart 
 | `priorityClassName`                    | priorityClassName                                                                                                                                                                                               | `""`                                                    |
 | `secretAnnotations`                    | Additional annotations to apply to the secret                                                                                                                                                                   | `{}`                                                    |
 | `securityContext`                      | Security context for the container                                                                                                                                                                              | `{}`                                                    |
+| `podDisruptionBudget`                  | PodDisruptionBudget for the pod                                                                                                                                                                                 | `{}`                                                    |
 | `service.enabled`                      | Whether to create Service resource or not                                                                                                                                                                       | `true`                                                  |
 | `service.type`                         | Kubernetes Service type                                                                                                                                                                                         | `ClusterIP`                                             |
 | `service.port`                         | ExternalDNS client port                                                                                                                                                                                         | `7979`                                                  |
@@ -202,6 +212,7 @@ The following table lists the configurable parameters of the external-dns chart 
 | `serviceAccount.create`                | Determine whether a Service Account should be created or it should reuse a exiting one.                                                                                                                         | `true`                                                  |
 | `serviceAccount.name`                  | ServiceAccount to use. A name is generated using the external-dns.fullname template if it is not set                                                                                                            | `nil`                                                   |
 | `serviceAccount.annotations`           | Additional Service Account annotations                                                                                                                                                                          | `{}`                                                    |
+| `serviceAccount.automountServiceAccountToken` | Automount API credentials for a service account.                                                                                                                                         | `true`                                                  |
 | `rbac.create`                          | Whether to create & use RBAC resources or not                                                                                                                                                                   | `true`                                                  |
 | `rbac.apiVersion`                      | Version of the RBAC API                                                                                                                                                                                         | `v1`                                                    |
 | `rbac.pspEnabled`                      | PodSecurityPolicy                                                                                                                                                                                               | `false`                                                 |
@@ -241,22 +252,6 @@ It is strongly recommended to use immutable tags in a production environment. Th
 
 Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
 
-### Production configuration
-
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
-
-- Desired number of ExternalDNS replicas:
-```diff
-- replicas: 1
-+ replicas: 3
-```
-
-- Enable prometheus to access external-dns metrics endpoint:
-```diff
-- metrics.enabled: false
-+ metrics.enabled: true
-```
-
 ### Setting Pod's affinity
 
 This chart allows you to set your custom affinity using the `affinity` parameter. Find more information about Pod's affinity in the [kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
@@ -291,17 +286,24 @@ $ helm install my-release \
   bitnami/external-dns
 ```
 
-
 ## Troubleshooting
 
 Find more information about how to deal with common errors related to Bitnami’s Helm charts in [this troubleshooting guide](https://docs.bitnami.com/general/how-to/troubleshoot-helm-chart-issues).
 
 ## Upgrading
 
+### To 5.0.0
+
+The CRD was updated according to the latest changes in the upstream project. As a consequence, the CRD API version was moved from `apiextensions.k8s.io/v1beta1` to `apiextensions.k8s.io/v1`. If you deployed the Helm Chart using `crd.create=true` you need to manually delete the old CRD before upgrading the release.
+
+```console
+kubectl delete crd dnsendpoints.externaldns.k8s.io
+helm upgrade my-release -f my-values.yaml
+```
+
 ### To 4.3.0
 
 This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated thechart dependencies before executing any upgrade.
-
 
 ### To 4.0.0
 

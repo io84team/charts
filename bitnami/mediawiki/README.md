@@ -20,7 +20,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 - PV provisioner support in the underlying infrastructure
 - ReadWriteMany volumes for deployment scaling
 
@@ -85,6 +85,7 @@ The following tables lists the configurable parameters of the Mediawki chart and
 | `mediawikiName`      | Name for the wiki                                                    | `My Wiki`                                               |
 | `mediawikiHost`      | Mediawiki host to create application URLs                            | `nil`                                                   |
 | `allowEmptyPassword` | Allow DB blank passwords                                             | `yes`                                                   |
+| `hostAliases`        | Add deployment host aliases                                          | `Check values.yaml`                                     |
 | `smtpHost`           | SMTP host                                                            | `nil`                                                   |
 | `smtpPort`           | SMTP port                                                            | `nil`                                                   |
 | `smtpHostID`         | SMTP host ID                                                         | `nil`                                                   |
@@ -182,16 +183,25 @@ The following tables lists the configurable parameters of the Mediawki chart and
 
 ### Metrics parameters
 
-| Parameter                   | Description                                      | Default                                                      |
-|-----------------------------|--------------------------------------------------|--------------------------------------------------------------|
-| `metrics.enabled`           | Start a side-car prometheus exporter             | `false`                                                      |
-| `metrics.image.registry`    | Apache exporter image registry                   | `docker.io`                                                  |
-| `metrics.image.repository`  | Apache exporter image name                       | `bitnami/apache-exporter`                                    |
-| `metrics.image.tag`         | Apache exporter image tag                        | `{TAG_NAME}`                                                 |
-| `metrics.image.pullPolicy`  | Image pull policy                                | `IfNotPresent`                                               |
-| `metrics.image.pullSecrets` | Specify docker-registry secret names as an array | `[]` (does not add image pull secrets to deployed pods)      |
-| `metrics.podAnnotations`    | Additional annotations for Metrics exporter pod  | `{prometheus.io/scrape: "true", prometheus.io/port: "9117"}` |
-| `metrics.resources`         | Exporter resource requests/limit                 | `{}`                                                         |
+| Parameter                                 | Description                                                                  | Default                                                      |
+|-------------------------------------------|------------------------------------------------------------------------------|--------------------------------------------------------------|
+| `metrics.enabled`                         | Start a side-car prometheus exporter                                         | `false`                                                      |
+| `metrics.image.registry`                  | Apache exporter image registry                                               | `docker.io`                                                  |
+| `metrics.image.repository`                | Apache exporter image name                                                   | `bitnami/apache-exporter`                                    |
+| `metrics.image.tag`                       | Apache exporter image tag                                                    | `{TAG_NAME}`                                                 |
+| `metrics.image.pullPolicy`                | Image pull policy                                                            | `IfNotPresent`                                               |
+| `metrics.image.pullSecrets`               | Specify docker-registry secret names as an array                             | `[]` (does not add image pull secrets to deployed pods)      |
+| `metrics.port`                            | Metrics service port                                                         | `9117`                                                       |
+| `metrics.podAnnotations`                  | Additional annotations for Metrics exporter pod                              | `{prometheus.io/scrape: "true", prometheus.io/port: "9117"}` |
+| `metrics.resources`                       | Exporter resource requests/limit                                             | `{}`                                                         |
+| `metrics.serviceMonitor.enabled`          | Create ServiceMonitor Resource for scraping metrics using PrometheusOperator | `false`                   |
+| `metrics.serviceMonitor.namespace`        | The namespace in which the ServiceMonitor will be created                    | `nil`                     |
+| `metrics.serviceMonitor.interval`         | The interval at which metrics should be scraped                              | `30s`                     |
+| `metrics.serviceMonitor.scrapeTimeout`    | The timeout after which the scrape is ended                                  | `nil`                     |
+| `metrics.serviceMonitor.relabellings`     | Metrics relabellings to add to the scrape endpoint                           | `nil`                     |
+| `metrics.serviceMonitor.honorLabels`      | Labels to honor to add to the scrape endpoint                                | `false`                   |
+| `metrics.serviceMonitor.additionalLabels` | Additional custom labels for the ServiceMonitor                              | `{}`                      |
+
 
 The above parameters map to the env variables defined in [bitnami/mediawiki](http://github.com/bitnami/bitnami-docker-mediawiki). For more information please refer to the [bitnami/mediawiki](http://github.com/bitnami/bitnami-docker-mediawiki) image documentation.
 
@@ -208,6 +218,8 @@ $ helm install my-release \
 ```
 
 The above command sets the MediaWiki administrator account username and password to `admin` and `password` respectively. Additionally, it sets the MariaDB `root` user password to `secretpassword`.
+
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 

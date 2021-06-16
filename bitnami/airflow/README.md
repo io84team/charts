@@ -17,7 +17,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 
 ## Installing the Chart
 
@@ -47,7 +47,7 @@ The command removes all the Kubernetes components associated with the chart and 
 The following tables lists the configurable parameters of the Airflow chart and their default values.
 
 | Parameter                 | Description                                     | Default                                                 |
-|---------------------------|-------------------------------------------------|---------------------------------------------------------|
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
 | `global.imageRegistry`    | Global Docker image registry                    | `nil`                                                   |
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]` (does not add image pull secrets to deployed pods) |
 | `global.storageClass`     | Global storage class for dynamic provisioning   | `nil`                                                   |
@@ -55,7 +55,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Common parameters
 
 | Parameter                            | Description                                                                                                             | Default                        |
-|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------|--------------------------------|
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
 | `affinity`                           | Affinity for pod assignment (evaluated as a template)                                                                   | `{}`                           |
 | `commonAnnotations`                  | Annotations to add to all deployed objects                                                                              | `{}`                           |
 | `commonLabels`                       | Labels to add to all deployed objects                                                                                   | `{}`                           |
@@ -88,7 +88,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow common parameters
 
 | Parameter                | Description                                                                                                          | Default            |
-|--------------------------|----------------------------------------------------------------------------------------------------------------------|--------------------|
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------ |
 | `auth.existingSecret`    | Name of an existing secret containing password and fernet key ('airflow-password and 'airflow-fernetKey' keys)       | `nil`              |
 | `auth.fernetKey`         | Fernet key to secure connections                                                                                     | `nil`              |
 | `auth.forcePassword`     | Force users to specify a password                                                                                    | `false`            |
@@ -96,23 +96,24 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `auth.username`          | Username to access web UI                                                                                            | `user`             |
 | `configurationConfigMap` | Name of an existing config map containing the Airflow config file                                                    | `nil`              |
 | `dagsConfigMap`          | Name of an existing config map containing all the DAGs files you want to load in Airflow.                            | `nil`              |
-| `executor`               | Airflow executor, it should be one of `SequentialExecutor`, `Local Executor`, `CeleryExecutor`, `KubernetesExecutor` | `"CeleryExecutor"` |
+| `executor`               | Airflow executor, it should be one of `SequentialExecutor`, `LocalExecutor`, `CeleryExecutor`, `KubernetesExecutor` | `"CeleryExecutor"` |
 | `loadExamples`           | Switch to load some Airflow examples                                                                                 | `false`            |
 
 ## Airflow web parameters
 
 | Parameter                                | Description                                                                                          | Default                                                 |
-|------------------------------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `web.args`                               | Override default container args (useful when using custom images)                                    | `nil`                                                   |
 | `web.baseUrl`                            | URL used to access to airflow web ui                                                                 | `nil`                                                   |
 | `web.command`                            | Override default container command (useful when using custom images)                                 | `nil`                                                   |
 | `web.configMap`                          | Config map name for ~/airflow/webserver_config.py                                                    | `nil`                                                   |
 | `web.containerPort`                      | Container port to be used for exposing http server.                                                  | `8080`                                                  |
 | `web.customLivenessProbe`                | Custom liveness probe for the web component                                                          | `{}`                                                    |
-| `web.customReadinessProbe`               | Custom rediness probe for the web component                                                          | `{}`                                                    |
+| `web.customReadinessProbe`               | Custom readiness probe for the web component                                                          | `{}`                                                    |
 | `web.extraEnvVars`                       | Array containing extra env vars                                                                      | `nil`                                                   |
 | `web.extraEnvVarsCM`                     | ConfigMap containing extra env vars                                                                  | `nil`                                                   |
 | `web.extraEnvVarsSecret`                 | Secret containing extra env vars (in case of sensitive data)                                         | `nil`                                                   |
+| `web.hostAliases`                        | Add deployment host aliases                                                                          | `[]`                                                    |
 | `web.extraVolumeMounts`                  | Array of extra volume mounts to be added (evaluated as template). Normally used with `extraVolumes`. | `nil`                                                   |
 | `web.extraVolumes`                       | Array of extra volumes to be added (evaluated as template).                                          | `nil`                                                   |
 | `web.image.debug`                        | Specify if debug values should be set                                                                | `false`                                                 |
@@ -128,6 +129,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `web.livenessProbe.periodSeconds`        | How often to perform the probe                                                                       | 20                                                      |
 | `web.livenessProbe.successThreshold`     | Minimum consecutive successes for the probe to be considered successful after having failed          | 1                                                       |
 | `web.livenessProbe.timeoutSeconds`       | When the probe times out                                                                             | 5                                                       |
+| `web.nodeSelector`                       | Node labels for pod assignment                                                                       | `{}` (evaluated as a template)                          |
 | `web.podAnnotations`                     | Annotations to add to the web's pods                                                                 | `nil`                                                   |
 | `web.podDisruptionBudget.enabled`        | Switch to enable Pod Disruption Budget for Airflow web component                                     | `false`                                                 |
 | `web.podDisruptionBudget.minAvailable`   | Set the minimum amount of pods available                                                             | `1`                                                     |
@@ -152,15 +154,16 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow scheduler parameters
 
 | Parameter                                    | Description                                                                                          | Default                                                 |
-|----------------------------------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `scheduler.args`                             | Override default container args (useful when using custom images)                                    | `nil`                                                   |
 | `scheduler.command`                          | Override default container command (useful when using custom images)                                 | `nil`                                                   |
 | `scheduler.customLivenessProbe`              | Custom liveness probe for the Airflow scheduler component                                            | `{}`                                                    |
-| `scheduler.customReadinessProbe`             | Custom rediness probe for the Airflow scheduler component                                            | `{}`                                                    |
+| `scheduler.customReadinessProbe`             | Custom readiness probe for the Airflow scheduler component                                           | `{}`                                                    |
 | `scheduler.extraEnvVars`                     | Array containing extra env vars                                                                      | `nil`                                                   |
 | `scheduler.extraEnvVarsCM`                   | ConfigMap containing extra env vars                                                                  | `nil`                                                   |
 | `scheduler.extraEnvVarsSecret`               | Secret containing extra env vars (in case of sensitive data)                                         | `nil`                                                   |
 | `scheduler.extraVolumeMounts`                | Array of extra volume mounts to be added (evaluated as template). Normally used with `extraVolumes`. | `nil`                                                   |
+| `scheduler.hostAliases`                      | Add deployment host aliases                                                                          | `[]`                                                    |
 | `scheduler.extraVolumes`                     | Array of extra volumes to be added (evaluated as template).                                          | `nil`                                                   |
 | `scheduler.image.debug`                      | Specify if debug values should be set                                                                | `false`                                                 |
 | `scheduler.image.pullPolicy`                 | Airflow Scheduler image pull policy                                                                  | `IfNotPresent`                                          |
@@ -169,6 +172,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `scheduler.image.repository`                 | Airflow Scheduler image name                                                                         | `bitnami/airflow-scheduler`                             |
 | `scheduler.image.tag`                        | Airflow Scheduler image tag                                                                          | `{TAG_NAME}`                                            |
 | `scheduler.initContainers`                   | List of init containers to be added to the scheduler's pods                                          | `nil`                                                   |
+| `scheduler.nodeSelector`                     | Node labels for pod assignment                                                                       | `{}` (evaluated as a template)                          |
 | `scheduler.podAnnotations`                   | Annotations to add to the scheduler's pods                                                           | `nil`                                                   |
 | `scheduler.podDisruptionBudget.enabled`      | Switch to enable Pod Disruption Budget for Airflow scheduler component                               | `false`                                                 |
 | `scheduler.podDisruptionBudget.minAvailable` | Set the minimum amount of pods available                                                             | `1`                                                     |
@@ -182,7 +186,8 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow worker parameters
 
 | Parameter                                   | Description                                                                                                                                                            | Default                                                 |
-|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `worker.affinity`                           | Affinity for worker pod assignment. Supersedes the common affinity configuration                                                                                       | `nil`                                                   |
 | `worker.args`                               | Override default container args (useful when using custom images)                                                                                                      | `nil`                                                   |
 | `worker.autoscaling.enabled`                | Switch to enable Horizontal Pod Autoscaler for Airflow worker component (only when executor is `CeleryExecutor`). When enable you should also set `resources.requests` | `false`                                                 |
 | `worker.autoscaling.replicas.max`           | Maximum amount of replicas                                                                                                                                             | `3`                                                     |
@@ -190,8 +195,9 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `worker.autoscaling.targets.cpu`            | Target cpu that will trigger an scaling action (unit: %)                                                                                                               | `80`                                                    |
 | `worker.autoscaling.targets.memory`         | Target memory that will trigger an scaling action (unit: %)                                                                                                            | `80`                                                    |
 | `worker.command`                            | Override default container command (useful when using custom images)                                                                                                   | `nil`                                                   |
+| `worker.hostAliases`                        | Add deployment host aliases                                                                                                                                            | `[]`                                                    |
 | `worker.customLivenessProbe`                | Custom liveness probe for the Airflow worker component                                                                                                                 | `{}`                                                    |
-| `worker.customReadinessProbe`               | Custom rediness probe for the Airflow worker component                                                                                                                 | `{}`                                                    |
+| `worker.customReadinessProbe`               | Custom readiness probe for the Airflow worker component                                                                                                                | `{}`                                                    |
 | `worker.extraEnvVars`                       | Array containing extra env vars                                                                                                                                        | `nil`                                                   |
 | `worker.extraEnvVarsCM`                     | ConfigMap containing extra env vars                                                                                                                                    | `nil`                                                   |
 | `worker.extraEnvVarsSecret`                 | Secret containing extra env vars (in case of sensitive data)                                                                                                           | `nil`                                                   |
@@ -210,6 +216,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `worker.livenessProbe.periodSeconds`        | How often to perform the probe                                                                                                                                         | 20                                                      |
 | `worker.livenessProbe.successThreshold`     | Minimum consecutive successes for the probe to be considered successful after having failed                                                                            | 1                                                       |
 | `worker.livenessProbe.timeoutSeconds`       | When the probe times out                                                                                                                                               | 5                                                       |
+| `worker.nodeSelector`                       | Node labels for pod assignment                                                                                                                                         | `{}` (evaluated as a template)                          |
 | `worker.podAnnotations`                     | Annotations to add to the worker's pods                                                                                                                                | `nil`                                                   |
 | `worker.podDisruptionBudget.enabled`        | Switch to enable Pod Disruption Budget for Airflow worker component                                                                                                    | `false`                                                 |
 | `worker.podDisruptionBudget.minAvailable`   | Set the minimum amount of pods available                                                                                                                               | `1`                                                     |
@@ -228,36 +235,38 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `worker.resources.requests`                 | The requested resources for the worker containers                                                                                                                      | `{}`                                                    |
 | `worker.rollingUpdatePartition`             | Partition update strategy                                                                                                                                              | `nil`                                                   |
 | `worker.sidecars`                           | List of sidecar containers to be added to the worker's pods                                                                                                            | `nil`                                                   |
-| `worker.updateStrategy`                     | pdate strategy for the statefulset                                                                                                                                     | `"RollingUpdate"`                                       |
+| `worker.tolerations`                        | Tolerations for worker pod assignment. Supersedes the common tolerations configuration                                                                                 | `nil`                                                   |
+| `worker.updateStrategy`                     | Update strategy for the statefulset                                                                                                                                    | `"RollingUpdate"`                                       |
 
 ### Airflow database parameters
 
-| Parameter                         | Description                                                                                                                                                                                                                    | Default           |
-|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `externalDatabase.database`       | External PostgreSQL database name                                                                                                                                                                                              | `nil`             |
-| `externalDatabase.existingSecret` | Name of an existing secret containing the PostgreSQL password ('postgresql-password' key)                                                                                                                                      | `nil`             |
-| `externalDatabase.host`           | External PostgreSQL host                                                                                                                                                                                                       | `nil`             |
-| `externalDatabase.password`       | External PostgreSQL password                                                                                                                                                                                                   | `nil`             |
-| `externalDatabase.port`           | External PostgreSQL port                                                                                                                                                                                                       | `nil`             |
-| `externalDatabase.user`           | External PostgreSQL user                                                                                                                                                                                                       | `nil`             |
-| `externalRedis.existingSecret`    | Name of an existing secret containing the Redis<sup>TM</sup> password ('redis-password' key)                                                                                                                                   | `nil`             |
-| `externalRedis.host`              | External Redis<sup>TM</sup> host                                                                                                                                                                                               | `nil`             |
-| `externalRedis.password`          | External Redis<sup>TM</sup> password                                                                                                                                                                                           | `nil`             |
-| `externalRedis.port`              | External Redis<sup>TM</sup> port                                                                                                                                                                                               | `nil`             |
-| `externalRedis.username`          | External Redis<sup>TM</sup> username (not required on most Redis<sup>TM</sup> implementations)                                                                                                                                 | `nil`             |
-| `postgresql.enabled`              | Switch to enable or disable the PostgreSQL helm chart                                                                                                                                                                          | `true`            |
-| `postgresql.existingSecret`       | Name of an existing secret containing the PostgreSQL password ('postgresql-password' key) . This secret is used in case of postgresql.enabled=true and we would like to specify password for newly created postgresql instance | `nil`             |
-| `postgresql.postgresqlDatabase`   | Airflow Postgresql database                                                                                                                                                                                                    | `bitnami_airflow` |
-| `postgresql.postgresqlPassword`   | Airflow Postgresql password                                                                                                                                                                                                    | `nil`             |
-| `postgresql.postgresqlUsername`   | Airflow Postgresql username                                                                                                                                                                                                    | `bn_airflow`      |
-| `redis.cluster.enabled`           | Switch to enable a clustered redis                                                                                                                                                                                             | `false`           |
-| `redis.enabled`                   | Switch to enable or disable the Redis<sup>TM</sup> helm chart                                                                                                                                                                  | `true`            |
-| `redis.existingSecret`            | Name of an existing secret containing the Redis<sup>TM</sup> password ('redis-password' key) . This secret is used in case of redis.enabled=true and we would like to specify password for newly created redis instance        | `nil`             |
+| Parameter                                    | Description                                                                                                                                                                                                                    | Default           |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| `externalDatabase.database`                  | External PostgreSQL database name                                                                                                                                                                                              | `nil`             |
+| `externalDatabase.existingSecret`            | Name of an existing secret resource containing the PostgreSQL password                                                                                                                                                         | `nil`             |
+| `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the PostgreSQL password                                                                                                                                                              | `nil`             |
+| `externalDatabase.host`                      | External PostgreSQL host                                                                                                                                                                                                       | `nil`             |
+| `externalDatabase.password`                  | External PostgreSQL password                                                                                                                                                                                                   | `nil`             |
+| `externalDatabase.port`                      | External PostgreSQL port                                                                                                                                                                                                       | `nil`             |
+| `externalDatabase.user`                      | External PostgreSQL user                                                                                                                                                                                                       | `nil`             |
+| `externalRedis.existingSecret`               | Name of an existing secret containing the Redis<sup>TM</sup> password ('redis-password' key)                                                                                                                                   | `nil`             |
+| `externalRedis.host`                         | External Redis<sup>TM</sup> host                                                                                                                                                                                               | `nil`             |
+| `externalRedis.password`                     | External Redis<sup>TM</sup> password                                                                                                                                                                                           | `nil`             |
+| `externalRedis.port`                         | External Redis<sup>TM</sup> port                                                                                                                                                                                               | `nil`             |
+| `externalRedis.username`                     | External Redis<sup>TM</sup> username (not required on most Redis<sup>TM</sup> implementations)                                                                                                                                 | `nil`             |
+| `postgresql.enabled`                         | Switch to enable or disable the PostgreSQL helm chart                                                                                                                                                                          | `true`            |
+| `postgresql.existingSecret`                  | Name of an existing secret containing the PostgreSQL password ('postgresql-password' key) . This secret is used in case of postgresql.enabled=true and we would like to specify password for newly created postgresql instance | `nil`             |
+| `postgresql.postgresqlDatabase`              | Airflow Postgresql database                                                                                                                                                                                                    | `bitnami_airflow` |
+| `postgresql.postgresqlPassword`              | Airflow Postgresql password                                                                                                                                                                                                    | `nil`             |
+| `postgresql.postgresqlUsername`              | Airflow Postgresql username                                                                                                                                                                                                    | `bn_airflow`      |
+| `redis.architecture`                         | Redis<sup>TM</sup> architecture. Allowed values: `standalone` or `replication`                                                                                                                                                 | `standalone`      |
+| `redis.enabled`                              | Switch to enable or disable the Redis<sup>TM</sup> helm chart                                                                                                                                                                  | `true`            |
+| `redis.auth.existingSecret`                  | Name of an existing secret containing the Redis<sup>TM</sup> password ('redis-password' key) . This secret is used in case of redis.enabled=true and we would like to specify password for newly created redis instance        | `nil`             |
 
 ### Airflow exposing parameters
 
 | Parameter                        | Description                                                                          | Default                  |
-|----------------------------------|--------------------------------------------------------------------------------------|--------------------------|
+| -------------------------------- | ------------------------------------------------------------------------------------ | ------------------------ |
 | `ingress.annotations`            | Ingress annotations                                                                  | `[]`                     |
 | `ingress.apiVersion`             | Force Ingress API version (automatically detected if not set)                        | ``                       |
 | `ingress.pathType`               | Ingress path type                                                                    | `ImplementationSpecific` |
@@ -275,14 +284,16 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow metrics parameters
 
 | Parameter                   | Description                                      | Default                                                 |
-|-----------------------------|--------------------------------------------------|---------------------------------------------------------|
+| --------------------------- | ------------------------------------------------ | ------------------------------------------------------- |
 | `metrics.enabled`           | Start a side-car prometheus exporter             | `false`                                                 |
 | `metrics.image.pullPolicy`  | Image pull policy                                | `IfNotPresent`                                          |
 | `metrics.image.pullSecrets` | Specify docker-registry secret names as an array | `[]` (does not add image pull secrets to deployed pods) |
 | `metrics.image.registry`    | Airflow exporter image registry                  | `docker.io`                                             |
 | `metrics.image.repository`  | Airflow exporter image name                      | `bitnami/airflow-exporter`                              |
 | `metrics.image.tag`         | Airflow exporter image tag                       | `{TAG_NAME}`                                            |
+| `metrics.nodeSelector`      | Node labels for pod assignment                   | `{}` (evaluated as a template)                          |
 | `metrics.podAnnotations`    | Annotations to add to the metrics's pods         | `nil`                                                   |
+| `metrics.hostAliases`       | Add deployment host aliases                      | `[]`                                                    |
 | `metrics.podLabels`         | Labels to add to the worker's pods               | `{}`                                                    |
 | `metrics.resources`         | The resources for the metrics containers         | `{}`                                                    |
 | `metrics.tolerations`       | The tolerations for the metrics pod              | `[]`                                                    |
@@ -290,7 +301,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow ldap parameters
 
 | Parameter                        | Description                                                  | Default |
-|----------------------------------|--------------------------------------------------------------|---------|
+| -------------------------------- | ------------------------------------------------------------ | ------- |
 | `ldap.base`                      | LDAP search base DN                                          | `nil`   |
 | `ldap.binddn`                    | LDAP bind DN                                                 | `nil`   |
 | `ldap.bindpw`                    | LDAP bind password                                           | `nil`   |
@@ -305,13 +316,14 @@ The following tables lists the configurable parameters of the Airflow chart and 
 ### Airflow git sync parameters
 
 | Parameter                                | Description                                                                                                       | Default                 |
-|------------------------------------------|-------------------------------------------------------------------------------------------------------------------|-------------------------|
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------- |
 | `git.clone.args`                         | Override default container args (useful when using custom images)                                                 | `nil`                   |
 | `git.clone.command`                      | Override default container command (useful when using custom images)                                              | `nil`                   |
 | `git.clone.extraEnvVars`                 | Array containing extra env vars                                                                                   | `nil`                   |
 | `git.clone.extraEnvVarsCM`               | ConfigMap containing extra env vars                                                                               | `nil`                   |
 | `git.clone.extraEnvVarsSecret`           | Secret containing extra env vars (in case of sensitive data)                                                      | `nil`                   |
 | `git.clone.extraVolumeMounts`            | Array of extra volume mounts to be added (evaluated as template). Normally used with `extraVolumes`.              | `nil`                   |
+| `git.clone.resources`                    | The resources for the clone init container                                                                        | {}                      |
 | `git.dags.enabled`                       | Enable in order to download DAG files from git repository.                                                        | `false`                 |
 | `git.dags.repositories[0].branch`        | Branch from repository to checkout                                                                                | `nil`                   |
 | `git.dags.repositories[0].name`          | An unique identifier for repository, must be unique for each repository, by default: `[0].repository` in kebacase | `nil`                   |
@@ -333,6 +345,7 @@ The following tables lists the configurable parameters of the Airflow chart and 
 | `git.sync.extraEnvVarsCM`                | ConfigMap containing extra env vars                                                                               | `nil`                   |
 | `git.sync.extraEnvVarsSecret`            | Secret containing extra env vars (in case of sensitive data)                                                      | `nil`                   |
 | `git.sync.extraVolumeMounts`             | Array of extra volume mounts to be added (evaluated as template). Normally used with `extraVolumes`.              | `nil`                   |
+| `git.sync.resources`                     | The resources for the sync sidecar container                                                                      | {}                      |
 | `git.sync.interval`                      | Interval (in seconds) to pull the git repository containing the plugins and/or DAG files                          | `60`                    |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
@@ -346,6 +359,8 @@ $ helm install my-release \
 ```
 
 The above command sets the credentials to access the Airflow web UI.
+
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
@@ -362,44 +377,6 @@ $ helm install my-release -f values.yaml bitnami/airflow
 It is strongly recommended to use immutable tags in a production environment. This ensures your deployment does not change automatically if the same tag is updated with a different image.
 
 Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
-
-### Production configuration
-
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
-
-- URL used to access to airflow web ui:
-
-```diff
-- # airflow.baseUrl:
-+ airflow.baseUrl: http://airflow.local
-```
-
-- Number of Airflow Worker replicas and enable autoscaling:
-
-```diff
-- worker.replicaCount: 1
-+ worker.replicaCount: 3
-- worker.autoscaling.enabled=false
-+ worker.autoscaling.enabled=true
-- worker.autoscaling.replicas.max=3
-+ worker.autoscaling.replicas.max=6
-- worker.autoscaling.replicas.min=1
-+ worker.autoscaling.replicas.min=3
-```
-
-- Force users to specify a password:
-
-```diff
-- airflow.auth.forcePassword: false
-+ airflow.auth.forcePassword: true
-```
-
-- Enable ingress controller resource:
-
-```diff
-- ingress.enabled: false
-+ ingress.enabled: true
-```
 
 ### Generate a Fernet key
 
@@ -445,7 +422,7 @@ git.plugins.repositories[0].path=plugins
 
 ### Existing Secrets
 
-You can use an existing secret to configure your Airflow auth, external Postgres, and extern Redis<sup>TM</sup> passwords:
+You can use an existing secret to configure your Airflow auth, external Postgres, and external Redis<sup>TM</sup> passwords:
 
 ```console
 postgresql.enabled=false
@@ -502,7 +479,9 @@ Celery executor is the default value for this chart with it you can scale out th
 
 #### KubernetesExecutor
 
-The kubernetes executor is introduced in Apache Airflow 1.10.0. The Kubernetes executor will create a new pod for every task instance using the `pod_template.yaml` that you can find [templates/config/configmap.yaml](), otherwise you can override this template using `worker.podTemplate`. To enable `KubernetesExecutor` set the following parameters.
+The kubernetes executor is introduced in Apache Airflow 1.10.0. The Kubernetes executor will create a new pod for every task instance using the `pod_template.yaml` that you can find [templates/config/configmap.yaml](https://github.com/bitnami/charts/blob/master/bitnami/airflow/templates/config/configmap.yaml), otherwise you can override this template using `worker.podTemplate`. To enable `KubernetesExecutor` set the following parameters.
+
+> NOTE: Redis<sup>TM</sup> is not needed to be deployed when using KubernetesExecutor so you must disable it using `redis.enabled=false`.
 
 ```console
 executor=KubernetesExecutor
@@ -510,6 +489,10 @@ redis.enabled=false
 rbac.create=true
 serviceaccount.create=true
 ```
+
+### CeleryKubernetesExecutor
+
+The CeleryKubernetesExecutor is introduced in Airflow 2.0 and is a combination of both the Celery and the Kubernetes executors. Tasks will be executed using Celery by default, but those tasks that require it can be executed in a Kubernetes pod using the 'kubernetes' queue.
 
 #### LocalExecutor
 
@@ -552,24 +535,29 @@ Find more information about how to deal with common errors related to Bitnami’
 
 ## Notable changes
 
-### 7.0.0
+### To 10.0.0
+
+This major updates the Redis<sup>TM</sup> subchart to it newest major, 14.0.0, which contains breaking changes. For more information on this subchart's major and the steps needed to migrate your data from your previous release, please refer to [Redis<sup>TM</sup> upgrade notes.](https://github.com/bitnami/charts/tree/master/bitnami/redis#to-1400).
+
+### To 7.0.0
 
 [On November 13, 2020, Helm v2 support was formally finished](https://github.com/helm/charts#status-of-the-project), this major version is the result of the required changes applied to the Helm Chart to be able to incorporate the different features added in Helm v3 and to be consistent with the Helm project itself regarding the Helm v2 EOL.
 
 #### What changes were introduced in this major version?
 
 - Previous versions of this Helm Chart use `apiVersion: v1` (installable by both Helm 2 and 3), this Helm Chart was updated to `apiVersion: v2` (installable by Helm 3 only). [Here](https://helm.sh/docs/topics/charts/#the-apiversion-field) you can find more information about the `apiVersion` field.
-- Move dependency information from the *requirements.yaml* to the *Chart.yaml*.
-- After running `helm dependency update`, a *Chart.lock* file is generated containing the same structure used in the previous *requirements.lock*.
-- The different fields present in the *Chart.yaml* file has been ordered alphabetically in a homogeneous way for all the Bitnami Helm Charts.
+- Move dependency information from the _requirements.yaml_ to the _Chart.yaml_.
+- After running `helm dependency update`, a _Chart.lock_ file is generated containing the same structure used in the previous _requirements.lock_.
+- The different fields present in the _Chart.yaml_ file has been ordered alphabetically in a homogeneous way for all the Bitnami Helm Charts.
 - Several parameters were renamed or disappeared in favor of new ones on this major version:
+
   - The image objects have been moved to its corresponding component object, e.g: `workerImage.*` now is located at `worker.image.*`.
-  - The prefix *airflow* has been removed. Therefore, parameters prefixed with `airflow` are now at root level, e.g. `airflow.loadExamples` now is `loadExamples` or `airflow.worker.resources` now is `worker.resources`.
-  - Parameters related to the *git* features has completely been refactored, please see how to configure git for [dags](#loaddagfiles) and [plugins](#loadingplugins) sections for more details.
+  - The prefix _airflow_ has been removed. Therefore, parameters prefixed with `airflow` are now at root level, e.g. `airflow.loadExamples` now is `loadExamples` or `airflow.worker.resources` now is `worker.resources`.
+  - Parameters related to the _git_ features has completely been refactored, please see how to configure git for [dags](#loaddagfiles) and [plugins](#loadingplugins) sections for more details.
     - They have been moved to `git.*` prefix.
     - `airflow.cloneDagsFromGit.*` no longer exists, instead you must use `git.dags.*` and `git.dags.repositories[*]` has been introduced that will add support for multiple repositories.
     - `airflow.clonePluginsFromGit.*` no longer exists, instead you must use `git.plugins.*`. `airflow.clonePluginsFromGit.repository`, `airflow.clonePluginsFromGit.branch` and `airflow.clonePluginsFromGit.path` have been removed in favour of `git.dags.repositories[*].*`.
-  - Liveness and rediness probe have been separated by components `airflow.livenessProbe.*` and `airflow.redinessProbe` have been removed in favour of `web.livenessProbe`, `worker.livenessProbe`, `web.redinessProbe` and `worker.redinessProbe`.
+  - Liveness and readiness probe have been separated by components `airflow.livenessProbe.*` and `airflow.readinessProbe` have been removed in favour of `web.livenessProbe`, `worker.livenessProbe`, `web.readinessProbe` and `worker.readinessProbe`.
   - `airflow.baseUrl` has been moved to `web.baseUrl`.
   - Security context has been migrated to the bitnami standard way so that `securityContext.*` has been divided into `podSecurityContext.*` that will define the `fsGroup` for all the containers in the pod and `containerSecurityContext.*` that will define the user id that will run the main containers.
   - Both `bitnami/postgresql` and `bitnami/redis` have been upgraded to their latest major versions, `10.x.x` and `11.x.x` respectively, find more info in their READMEs [`bitnami/postgresql`](https://github.com/bitnami/charts/tree/master/bitnami/postgresql#to-1000) and [`bitnami/redis`](https://github.com/bitnami/charts/tree/master/bitnami/redis#to-1100)
@@ -605,7 +593,7 @@ $ export AIRFLOW_PASSWORD=$(kubectl get secret --namespace default airflow -o js
 $ export AIRFLOW_FERNETKEY=$(kubectl get secret --namespace default airflow -o jsonpath="{.data.airflow-fernetKey}" | base64 --decode)
 $ export POSTGRESQL_PASSWORD=$(kubectl get secret --namespace default airflow-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
 $ export REDIS_PASSWORD=$(kubectl get secret --namespace default airflow-redis -o jsonpath="{.data.redis-password}" | base64 --decode)
-$ export POSTGRESQL_PVC=$(kubectl get pvc -l app.kubernetes.io/instance=postgresql,role=master -o jsonpath="{.items[0].metadata.name}")
+$ export POSTGRESQL_PVC=$(kubectl get pvc -l app.kubernetes.io/instance=airflow,app.kubernetes.io/name=postgresql,role=primary -o jsonpath="{.items[0].metadata.name}")
 ```
 
 ##### Delete statefulsets
@@ -647,14 +635,14 @@ $ kubectl delete pod airflow-postgresql-0
 - https://helm.sh/docs/topics/v2_v3_migration/
 - https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/
 
-### 6.5.0
+### To 6.5.0
 
 This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
 
-### 6.0.0
+### To 6.0.0
 
 This release adds support for LDAP authentication.
 
-### 1.0.0
+### To 1.0.0
 
 This release updates the PostgreSQL chart dependency to use PostgreSQL 11.x. You need to migrate the existing PostgreSQL data to this version before upgrading to this release. For more information follow [this link](https://github.com/bitnami/charts/tree/master/bitnami/postgresql#500).
